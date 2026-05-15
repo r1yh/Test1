@@ -473,7 +473,6 @@
         "exam-start-final": "#", "exam-solve-final": "#"
     };
 
-    // Auto-detect repo from URL
     function detectRepo() {
         const host = window.location.hostname;
         const path = window.location.pathname;
@@ -518,16 +517,30 @@
         "exam-solve-final": "حل الاختبار الشامل"
     };
 
+    // Fetch data directly from GitHub API to bypass cache
     async function fetchData() {
         if (!config.repo) {
             applyData();
             return;
         }
         try {
-            const response = await fetch(`https://raw.githubusercontent.com/${config.repo}/main/${config.path}?t=${Date.now()}`);
+            // Using GitHub API instead of raw.githubusercontent to get fresh data
+            const response = await fetch(`https://api.github.com/repos/${config.repo}/contents/${config.path}?t=${Date.now()}`, {
+                headers: config.token ? { 'Authorization': `token ${config.token}` } : {}
+            });
             if (response.ok) {
-                siteData = await response.json();
+                const data = await response.json();
+                // Decode base64 content from GitHub API
+                const content = decodeURIComponent(escape(atob(data.content)));
+                siteData = JSON.parse(content);
                 applyData();
+            } else {
+                // Fallback to raw if API fails
+                const rawResponse = await fetch(`https://raw.githubusercontent.com/${config.repo}/main/${config.path}?t=${Date.now()}`);
+                if (rawResponse.ok) {
+                    siteData = await rawResponse.json();
+                    applyData();
+                }
             }
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -543,7 +556,6 @@
                     el.src = siteData[id];
                 } else {
                     el.href = siteData[id];
-                    // Force open in new tab if it's a real link
                     if (siteData[id] !== "#") {
                         el.setAttribute('target', '_blank');
                     }
@@ -593,8 +605,9 @@
                 })
             });
             if (updateFile.ok) {
-                alert("تم التحديث بنجاح!");
-                applyData();
+                alert("تم التحديث بنجاح! سيظهر التعديل للجميع فوراً.");
+                // Re-fetch to ensure we have the latest
+                await fetchData();
                 closeAdmin();
             } else {
                 const err = await updateFile.json();
