@@ -167,13 +167,33 @@
             height: 0;
             overflow: hidden;
             border-radius: 18px;
-            background: #000;
+            background: #1a1a1a;
             margin-bottom: 1.5rem;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
         }
 
         .video-wrapper iframe {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%; border: none;
+            z-index: 2;
+        }
+
+        .video-fallback {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            width: 80%;
+            z-index: 1;
+        }
+        .video-fallback p { margin-bottom: 10px; font-size: 0.9rem; }
+        .video-fallback a { 
+            color: var(--highlight-yellow); 
+            text-decoration: underline; 
+            font-weight: bold;
+            cursor: pointer;
         }
 
         .links-grid {
@@ -333,7 +353,10 @@
         <div id="u4" class="unit-card unit-data">
             <h2 style="color:var(--dark-orange); font-family:'Cairo';">الوحدة 4: سرعة التفاعل ورتبته</h2>
             <div class="video-wrapper">
-                <iframe id="video-u4" src=""></iframe>
+                <div class="video-fallback">
+                    <p>إذا لم يظهر الفيديو، <a id="fallback-u4" href="#" target="_blank">اضغط هنا للمشاهدة مباشرة</a></p>
+                </div>
+                <iframe id="video-u4" src="" allow="autoplay"></iframe>
             </div>
             <div class="links-grid">
                 <a id="link-video-u4" href="#" target="_blank" class="action-btn">🎥 فيديو</a>
@@ -345,7 +368,10 @@
         <div id="u5" class="unit-card unit-data" style="display:none;">
             <h2 style="color:var(--dark-orange); font-family:'Cairo';">الوحدة 5: الاتزان والأحماض والقواعد</h2>
             <div class="video-wrapper">
-                <iframe id="video-u5" src=""></iframe>
+                <div class="video-fallback">
+                    <p>إذا لم يظهر الفيديو، <a id="fallback-u5" href="#" target="_blank">اضغط هنا للمشاهدة مباشرة</a></p>
+                </div>
+                <iframe id="video-u5" src="" allow="autoplay"></iframe>
             </div>
             <div class="links-grid">
                 <a id="link-video-u5" href="#" target="_blank" class="action-btn">🎥 فيديو</a>
@@ -357,7 +383,10 @@
         <div id="u67" class="unit-card unit-data" style="display:none;">
             <h2 style="color:var(--dark-orange); font-family:'Cairo';">الوحدة 6 و 7: الطاقة الحرارية والأنتروبي وجبس</h2>
             <div class="video-wrapper">
-                <iframe id="video-u67" src=""></iframe>
+                <div class="video-fallback">
+                    <p>إذا لم يظهر الفيديو، <a id="fallback-u67" href="#" target="_blank">اضغط هنا للمشاهدة مباشرة</a></p>
+                </div>
+                <iframe id="video-u67" src="" allow="autoplay"></iframe>
             </div>
             <div class="links-grid">
                 <a id="link-video-u67" href="#" target="_blank" class="action-btn">🎥 فيديو</a>
@@ -369,7 +398,10 @@
         <div id="revAll" class="unit-card unit-data" style="display:none; border-top: 5px solid var(--highlight-yellow);">
             <h2 style="color:var(--text-dark); font-family:'Cairo'; text-align: center;">📝 مراجعة الوحدات الشاملة</h2>
             <div class="video-wrapper">
-                <iframe id="video-revAll" src=""></iframe>
+                <div class="video-fallback">
+                    <p>إذا لم يظهر الفيديو، <a id="fallback-revAll" href="#" target="_blank">اضغط هنا للمشاهدة مباشرة</a></p>
+                </div>
+                <iframe id="video-revAll" src="" allow="autoplay"></iframe>
             </div>
             <div class="links-grid" style="grid-template-columns: 1fr;">
                 <a id="link-video-revAll" href="#" target="_blank" class="action-btn" style="background-color: var(--text-dark);">🎥 فيديو</a>
@@ -557,6 +589,10 @@
             if (el) {
                 if (el.tagName === 'IFRAME') {
                     el.src = siteData[id];
+                    // Also update fallback link for this video
+                    var fallbackId = 'fallback-' + id.replace('video-', '');
+                    var fallbackEl = document.getElementById(fallbackId);
+                    if (fallbackEl) fallbackEl.href = siteData[id].replace('/preview', '/view');
                 } else {
                     el.href = siteData[id];
                     if (siteData[id] !== "#") {
